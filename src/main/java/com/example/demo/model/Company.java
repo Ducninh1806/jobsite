@@ -48,11 +48,4 @@ public class Company implements Serializable {
     @Column(name = "VERIFY")
     private Boolean verify;
 
-
-
-
-
-
-
-
 }
