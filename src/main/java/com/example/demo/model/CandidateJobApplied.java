@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "CANDIDATE_JOB_APPLIED")
@@ -27,6 +28,6 @@ public class CandidateJobApplied implements Serializable {
 
     @Column(name = "APPLY_DATE", updatable = false)
     @CreationTimestamp
-    private Data applyDate;
+    private Date applyDate;
 
 }

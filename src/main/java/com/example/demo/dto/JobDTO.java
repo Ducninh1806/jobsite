@@ -1,10 +1,12 @@
 package com.example.demo.dto;
 
+import com.example.demo.model.SkillSet;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,5 +24,7 @@ public class JobDTO {
     private Double salaryFrom;
     private Double salaryTo;
     private Integer jobTypeId;
+
+    private List<SkillSet> skills;
 
 }

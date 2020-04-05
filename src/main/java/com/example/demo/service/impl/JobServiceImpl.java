@@ -1,31 +1,39 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dao.JobDAO;
+import com.example.demo.dao.impl.JobDaoImpl;
+import com.example.demo.dao.impl.SkillSetDaoImpl;
 import com.example.demo.dto.JobDTO;
 import com.example.demo.dto.JobDetailDTO;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.exception.LogicException;
 import com.example.demo.model.Job;
+import com.example.demo.model.SkillSet;
+import com.example.demo.model.SkillsForJob;
 import com.example.demo.service.JobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional
 public class JobServiceImpl implements JobService {
 
-    @Autowired
-    private JobDAO jobDAO;
+    private JobDaoImpl jobDAO;
 
-//    @Autowired
-//    private ModelMaper modelMaper
+    private SkillSetDaoImpl skillSetDao;
 
     private static final Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
+
+    public JobServiceImpl(JobDaoImpl jobDAO, SkillSetDaoImpl skillSetDao) {
+        this.jobDAO = jobDAO;
+        this.skillSetDao = skillSetDao;
+    }
 
     @Override
     public void addJob(JobDTO jobDTO) throws LogicException {
@@ -38,6 +46,24 @@ public class JobServiceImpl implements JobService {
         linkJobWithJobDTO(job, jobDTO);
         job.setActive(Boolean.FALSE);
         jobDAO.save(job);
+
+        List<SkillSet> skillSets = jobDTO.getSkills();
+        ArrayList<Long> skillID = new ArrayList<>();
+        for (SkillSet skillSet: skillSets){
+            SkillSet isSkillExist = skillSetDao.CheckNameIsExist(skillSet.getName());
+            if (isSkillExist == null){
+                skillSet.setCreatedDate(new Date());
+                skillSet.setCreatedBy(job.getUserId());
+                skillSetDao.save(skillSet);
+                skillID.add(skillSet.getId());
+            }else {
+                skillID.add(isSkillExist.getId());
+            }
+        }
+
+        for (Long skill : skillID){
+            addSkillForJob(skill, job);
+        }
     }
 
     @Override
@@ -105,5 +131,15 @@ public class JobServiceImpl implements JobService {
         jobDetailDTO.setSalaryTo(job.getSalaryTo());
         jobDetailDTO.setUserId(job.getUserId());
         jobDetailDTO.setActive(job.getActive());
+    }
+
+    public void addSkillForJob(Long skill, Job job){
+        SkillsForJob skillsForJob = new SkillsForJob();
+
+        skillsForJob.setJobId(job.getId());
+        skillsForJob.setSkillSetId(skill);
+        skillsForJob.setCreatedDate(new Date());
+        skillsForJob.setCreatedBy(job.getUserId());
+        jobDAO.addSkillToJob(skillsForJob);
     }
 }

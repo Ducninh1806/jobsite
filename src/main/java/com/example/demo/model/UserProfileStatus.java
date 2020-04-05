@@ -43,7 +43,4 @@ public class UserProfileStatus implements Serializable {
     @Column(name = "USER_ID")
     private Long userId;
 
-
-
-
 }
